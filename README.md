@@ -1,4 +1,4 @@
-# grpc-etcd-resolver
+# grpc-etcd-java
 Client Service Discovery for gRPC with etcd
 
 ## Usage
