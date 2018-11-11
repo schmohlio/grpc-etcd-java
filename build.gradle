@@ -1,0 +1,29 @@
+subprojects {
+    apply plugin: 'java'
+    group = 'io.schmohl'
+    version = '0.1.0'
+    repositories {
+        mavenCentral()
+    	jcenter()
+        maven {
+          url "https://oss.sonatype.org/content/repositories/snapshots"
+    	}
+    }
+    dependencies {
+    	implementation 'io.grpc:grpc-netty-shaded:1.16.1'
+    	implementation 'io.grpc:grpc-protobuf:1.16.1'
+    	implementation 'io.grpc:grpc-stub:1.16.1'
+
+    	implementation "io.etcd:jetcd-core:0.3.0-SNAPSHOT"
+
+    	// Use JUnit test framework
+    	testImplementation 'junit:junit:4.12'
+    }
+}
+
+
+project(':examples') {
+    dependencies {
+        implementation project(':grpc-etcd-java')
+    }
+}
