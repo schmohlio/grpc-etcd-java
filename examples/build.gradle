@@ -1,0 +1,68 @@
+apply plugin: 'com.google.protobuf'
+apply plugin: 'java'
+apply plugin: 'idea'
+apply plugin: 'application'
+
+startScripts.enabled = false
+
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath 'com.google.protobuf:protobuf-gradle-plugin:0.8.5'
+    }
+}
+
+dependencies {
+    compile "io.grpc:grpc-netty:1.16.1"
+    compile 'io.grpc:grpc-netty-shaded:1.16.1'
+    compile 'io.grpc:grpc-protobuf:1.16.1'
+    compile 'io.grpc:grpc-stub:1.16.1'
+
+    compile "io.etcd:jetcd-core:0.3.0-SNAPSHOT"
+}
+
+protobuf {
+    protoc {
+        artifact = "com.google.protobuf:protoc:3.5.1-1"
+    }
+    plugins {
+        grpc {
+            artifact = 'io.grpc:protoc-gen-grpc-java:1.16.1'
+        }
+    }
+    generateProtoTasks {
+        all()*.plugins {
+            grpc {}
+        }
+    }
+}
+
+sourceSets {
+    main {
+        java {
+            srcDirs 'build/generated/source/proto/main/grpc'
+            srcDirs 'build/generated/source/proto/main/java'
+        }
+    }
+}
+
+task pingServer(type: CreateStartScripts) {
+    mainClassName = 'io.schmohl.grpc.etcd.examples.PingServer'
+    applicationName = 'ping-server'
+    outputDir = new File(project.buildDir, 'tmp')
+    classpath = jar.outputs.files + project.configurations.runtime
+}
+
+//task pingClient(type: CreateStartScripts) {
+//    mainClassName = 'io.schmohl.grpc.etcd.examples.PingClient'
+//    applicationName = 'ping-client'
+//    outputDir = new File(project.buildDir, 'tmp')
+//    classpath = jar.outputs.files + project.configurations.runtime
+//}
+
+applicationDistribution.into('bin') {
+    from(pingServer)
+    fileMode = 0755
+}

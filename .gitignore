@@ -1,7 +1,12 @@
 .idea
 
 .gradle
-/build/
+build
+examples/build
+gradle.properties
+.gradle
+local.properties
+out
 
 # Ignore Gradle GUI config
 gradle-app.setting

@@ -12,7 +12,7 @@ You will need
 
 ```[java]
 ManagedChannelBuilder
-    .forTarget("etcd:///" + SERVICE_DIR)
+    .forTarget("etcd:///" + SERVICE_DIR) // note that the Authority is omitted
     .nameResolverFactory(EtcdNameResolverProvider.forEndpoints(endpoints))
     .loadBalancerFactory(RoundRobinLoadBalancerFactory.getInstance())
     .usePlaintext(true)
@@ -23,13 +23,13 @@ ManagedChannelBuilder
 
 Pseudocode:
 ```[java]
-etcd.getLeaseClient()
-  .keepAlive(Duration.ofSeconds(15).toMillis(), new StreamObserver<LeaseKeepAliveResponse>() {
-    @Override
-    public void onNext(LeaseKeepAliveResponse value) {
-        Uri uri = getCurrentUri();
-        PutOption options = PutOption.newBuilder().withLeaseId(value.getID()).build();
-        etcd.getKVClient().put(SERVICE_DIR, ByteSequence.fromUri(uri), options);
-    }
+long leaseId = etcd.getLeaseClient().grant(TTL).get().getID();
+
+etcd.getKVClient().put(
+        ByteSequence.from(PREFIX + getCurrentUri(), Charsets.US_ASCII),
+        ByteSequence.from(Long.toString(leaseId), Charsets.US_ASCII),
+        PutOption.newBuilder().withLeaseId(leaseId).build());
+
+etcd.getLeaseClient().keepAlive(leaseId, new EtcdServiceRegisterer());
 });
 ```

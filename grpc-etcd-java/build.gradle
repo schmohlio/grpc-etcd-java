@@ -1,0 +1,9 @@
+apply plugin: 'java'
+
+dependencies {
+    implementation 'io.grpc:grpc-netty-shaded:1.16.1'
+    implementation 'io.grpc:grpc-protobuf:1.16.1'
+    implementation 'io.grpc:grpc-stub:1.16.1'
+
+    implementation "io.etcd:jetcd-core:0.3.0-SNAPSHOT"
+}
