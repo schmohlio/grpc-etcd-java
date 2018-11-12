@@ -4,6 +4,7 @@ import com.google.common.base.Charsets;
 import com.google.common.base.Preconditions;
 import io.etcd.jetcd.*;
 import io.etcd.jetcd.kv.GetResponse;
+import io.etcd.jetcd.options.GetOption;
 import io.etcd.jetcd.options.WatchOption;
 import io.etcd.jetcd.watch.WatchEvent;
 import io.etcd.jetcd.watch.WatchResponse;
@@ -110,17 +111,20 @@ public class EtcdNameResolver extends NameResolver implements Watch.Listener {
     public void onCompleted() {}
 
     private void initializeAndWatch() {
-        ByteSequence key = ByteSequence.from(serviceDir, Charsets.UTF_8);
+        ByteSequence prefix = ByteSequence.from(serviceDir, Charsets.UTF_8);
+        GetOption option = GetOption.newBuilder()
+                .withPrefix(prefix)
+                .build();
 
         GetResponse query;
         try (KV kv = etcd.getKVClient()) {
-            query = kv.get(key).get();
+            query = kv.get(prefix, option).get();
         } catch (Exception e) {
             throw new RuntimeException("Unable to contact etcd", e);
         }
 
         for (KeyValue kv : query.getKvs()) {
-            String addr = kv.getKey().toString(Charsets.UTF_8);
+            String addr = getUriFromDir(kv.getKey().toString(Charsets.UTF_8));
             try {
                 URI uri = new URI(addr);
                 serviceUris.add(uri);
@@ -139,7 +143,7 @@ public class EtcdNameResolver extends NameResolver implements Watch.Listener {
                 .withRevision(query.getHeader().getRevision())
                 .build();
 
-        etcd.getWatchClient().watch(key, options, this);
+        etcd.getWatchClient().watch(prefix, options, this);
     }
 
     private void updateListener() {
@@ -156,5 +160,11 @@ public class EtcdNameResolver extends NameResolver implements Watch.Listener {
         } else {
             listener.onAddresses(addrs, Attributes.EMPTY);
         }
+    }
+
+    private static String getUriFromDir(String dir) {
+        String tmp = dir.replace("://", "~");
+        String[] tmps = tmp.split("/");
+        return tmps[tmps.length-1].replace("~", "://");
     }
 }

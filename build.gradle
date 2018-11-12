@@ -17,6 +17,6 @@ subprojects {
 
 project(':examples') {
     dependencies {
-        implementation project(':grpc-etcd-java')
+        compile project(':grpc-etcd-java')
     }
 }

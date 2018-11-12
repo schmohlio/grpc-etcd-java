@@ -40,7 +40,7 @@ public class EtcdNameResolverProvider extends NameResolverProvider {
                     "the path component (%s) of the target (%s) must start with '/'", targetPath, targetUri);
             return new EtcdNameResolver(
                     endpoints,
-                    targetPath);
+                    targetPath.substring(1));
         } else {
             return null;
         }

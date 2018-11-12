@@ -55,14 +55,15 @@ task pingServer(type: CreateStartScripts) {
     classpath = jar.outputs.files + project.configurations.runtime
 }
 
-//task pingClient(type: CreateStartScripts) {
-//    mainClassName = 'io.schmohl.grpc.etcd.examples.PingClient'
-//    applicationName = 'ping-client'
-//    outputDir = new File(project.buildDir, 'tmp')
-//    classpath = jar.outputs.files + project.configurations.runtime
-//}
+task pingClient(type: CreateStartScripts) {
+    mainClassName = 'io.schmohl.grpc.etcd.examples.PingClient'
+    applicationName = 'ping-client'
+    outputDir = new File(project.buildDir, 'tmp')
+    classpath = jar.outputs.files + project.configurations.runtime
+}
 
 applicationDistribution.into('bin') {
     from(pingServer)
+    .from(pingClient)
     fileMode = 0755
 }

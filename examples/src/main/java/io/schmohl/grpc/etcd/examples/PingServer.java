@@ -37,7 +37,7 @@ public class PingServer {
                 .start();
         logger.info("Server started on port:" + port);
 
-        final URI uri = URI.create("localhost:" + port);
+        final URI uri = URI.create("http://localhost:" + port);
         this.etcd = Client.builder()
                 .endpoints(URI.create(ENDPOINT))
                 .build();

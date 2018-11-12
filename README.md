@@ -8,6 +8,10 @@ You will need
 * a gRPC server that registers itself under a service directory (etcd key)
 * a gRPC client that provides the service directory in the target URI
 
+## Examples
+
+See the `examples/` project.
+
 ### Client-side Example
 
 ```[java]
